@@ -29,6 +29,8 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 		numberOfSharesRemaining,
 		hasPaidPlan,
 		connectionsAdminUrl,
+		adminUrl,
+		isEnhancedPublishingEnabled,
 	} = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
@@ -80,6 +82,8 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 						numberOfSharesRemaining={
 							isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
 						}
+						isEnhancedPublishingEnabled={ isEnhancedPublishingEnabled }
+						adminUrl={ adminUrl }
 					/>
 					{ enableTweetStorm && isPublicizeEnabled && (
 						<PublicizeTwitterOptions prePublish={ prePublish } />

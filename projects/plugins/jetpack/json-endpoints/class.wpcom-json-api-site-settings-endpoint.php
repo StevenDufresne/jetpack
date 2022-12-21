@@ -435,8 +435,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
-						'featured_image_email_enabled'     => (bool) get_option( 'featured_image_email_enabled' ),
-						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', true ),
+						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
+						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
+						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
+						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -497,6 +499,29 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 		return $response;
 
+	}
+
+	/**
+	 * Get the default value for the wpcom_gifting_subscription option.
+	 * The default value is the inverse of the plan's auto_renew setting.
+	 *
+	 * @return bool
+	 */
+	protected function get_wpcom_gifting_subscription_default() {
+		if ( function_exists( 'wpcom_get_site_purchases' ) && function_exists( 'wpcom_purchase_has_feature' ) ) {
+			$purchases = wpcom_get_site_purchases();
+
+			foreach ( $purchases as $purchase ) {
+				if ( wpcom_purchase_has_feature( $purchase, \WPCOM_Features::SUBSCRIPTION_GIFTING ) ) {
+					if ( isset( $purchase->auto_renew ) ) {
+						return ! $purchase->auto_renew;
+					} elseif ( isset( $purchase->user_allows_auto_renew ) ) {
+						return ! $purchase->user_allows_auto_renew;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -869,10 +894,30 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'wpcom_publish_posts_with_markdown':
 				case 'wpcom_publish_comments_with_markdown':
-				case 'wpcom_gifting_subscription':
 					$coerce_value = (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $coerce_value;
+					}
+					break;
+
+				case 'wpcom_gifting_subscription':
+					$coerce_value = (bool) $value;
+
+					/*
+					 * get_option returns a boolean false if the option doesn't exist, otherwise it always returns
+					 * a serialized value. Knowing that we can check if the option already exists.
+					 */
+					$gift_toggle = get_option( $key );
+					if ( false === $gift_toggle ) {
+						// update_option will not create a new option if the initial value is false. So use add_option.
+						if ( add_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
+						}
+					} else {
+						// If the option already exists use update_option.
+						if ( update_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
+						}
 					}
 					break;
 
@@ -887,6 +932,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'rss_use_excerpt':
 					update_option( 'rss_use_excerpt', (int) (bool) $value );
+					break;
+
+				case 'wpcom_subscription_emails_use_excerpt':
+					update_option( 'wpcom_subscription_emails_use_excerpt', (bool) $value );
+					$updated[ $key ] = (bool) $value;
 					break;
 
 				case 'instant_search_enabled':
@@ -904,6 +954,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					 */
 					update_option( 'lang_id', (int) $value );
 					$updated[ $key ] = (int) $value;
+					break;
+
+				case 'wpcom_featured_image_in_email':
+					update_option( 'wpcom_featured_image_in_email', (int) (bool) $value );
+					$updated[ $key ] = (int) (bool) $value;
+					break;
+
+				case 'jetpack_are_blogging_prompts_enabled':
+					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
+					$updated[ $key ] = (bool) $value;
 					break;
 
 				default:
@@ -976,5 +1036,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'updated' => $updated,
 		);
 
+	}
+
+	/**
+	 * Get the value of the wpcom_subscription_emails_use_excerpt option.
+	 * When the option is not set, it will return the value of the rss_use_excerpt option.
+	 *
+	 * @return bool
+	 */
+	protected function get_wpcom_subscription_emails_use_excerpt_option() {
+		$wpcom_subscription_emails_use_excerpt = get_option( 'wpcom_subscription_emails_use_excerpt', null );
+
+		if ( $wpcom_subscription_emails_use_excerpt === null ) {
+			$rss_use_excerpt                       = get_option( 'rss_use_excerpt', null );
+			$wpcom_subscription_emails_use_excerpt = $rss_use_excerpt === null ? false : $rss_use_excerpt;
+		}
+
+		return (bool) $wpcom_subscription_emails_use_excerpt;
 	}
 }

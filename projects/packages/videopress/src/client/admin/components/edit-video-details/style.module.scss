@@ -1,7 +1,23 @@
+
+:global {
+	#wpbody-content {
+		& > .notice {
+			display: none;
+		}
+	}
+
+	.jetpack-videopress-jitm-card {
+		.jitm-card {
+			margin-right: 0;
+			margin-bottom: 0;
+		}
+	}
+}
+
 .header-wrapper {
 	&:not( .small ) {
 		display: flex;
-		align-items: start;
+		align-items: center;
 	}
 
 	&.small .header-content {
@@ -36,16 +52,17 @@
 }
 
 .back-link {
+	display: flex;
+
 	.icon {
 		width: 16px;
 		margin-right: 4px;
 	}
 
 	.link {
-		--gray-70: #3C434A !important;
 		margin-bottom: calc( var( --spacing-base ) * 3 );
 		font-size: 14px;
-		color: var(--gray-70);
+		color: var(--jp-gray-70);
 		display: flex;
 		text-decoration: none;
 		align-items: center;

@@ -1,7 +1,8 @@
 import { addQueryArgs } from '@wordpress/url';
+import { VideoBlockAttributes } from '../../block-editor/blocks/video/types';
 
 export const getVideoPressUrl = (
-	guid,
+	guid: string,
 	{
 		autoplay,
 		controls,
@@ -14,7 +15,7 @@ export const getVideoPressUrl = (
 		seekbarPlayedColor,
 		seekbarLoadingColor,
 		useAverageColor,
-	}
+	}: VideoBlockAttributes
 ) => {
 	if ( ! guid ) {
 		return null;
@@ -27,7 +28,11 @@ export const getVideoPressUrl = (
 	// - Muted: Turned off by default.
 	// - Plays Inline: Turned off by default.
 	// - Poster: No image by default.
-	// - Preload: None by default.
+	// - Preload: Metadata by default.
+	// - SeekbarColor: No color by default.
+	// - SeekbarPlayerColor: No color by default.
+	// - SeekbarLoadingColor: No color by default.
+	// - UseAverageColor: Turned on by default.
 	const options = {
 		resizeToParent: true,
 		cover: true,

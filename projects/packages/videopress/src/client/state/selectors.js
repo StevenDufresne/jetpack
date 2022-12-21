@@ -43,6 +43,18 @@ export const getStorageUsed = state => {
 	};
 };
 
+export const getFirstUploadedVideoId = state => {
+	return state?.videos?.firstUploadedVideoId;
+};
+
+export const getFirstVideoProcessed = state => {
+	return state?.videos?.firstVideoProcessed;
+};
+
+export const getDismissedFirstVideoPopover = state => {
+	return state?.videos?.dismissedFirstVideoPopover;
+};
+
 // Single Video stuff
 export const getVideo = ( state, id ) => {
 	const videos = getVideos( state );
@@ -98,6 +110,10 @@ export const isFetchingPlaybackToken = state => {
 	return state?.playbackTokens?.isFetching;
 };
 
+export const getVideoPressSettings = state => {
+	return state?.siteSettings;
+};
+
 const selectors = {
 	// VideoPress videos
 	getVideos,
@@ -109,6 +125,9 @@ const selectors = {
 	getIsFetching,
 	getIsFetchingUploadedVideoCount,
 	getStorageUsed,
+	getFirstUploadedVideoId,
+	getFirstVideoProcessed,
+	getDismissedFirstVideoPopover,
 
 	// Local videos
 	getLocalVideos,
@@ -128,6 +147,8 @@ const selectors = {
 
 	getPlaybackToken,
 	isFetchingPlaybackToken,
+
+	getVideoPressSettings,
 };
 
 export default selectors;

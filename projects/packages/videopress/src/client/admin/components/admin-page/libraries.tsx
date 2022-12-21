@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -10,6 +11,7 @@ import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import useQueryStringPages from '../../hooks/use-query-string-pages';
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
@@ -49,6 +51,14 @@ const VideoLibraryWrapper = ( {
 	disabled?: boolean;
 } ) => {
 	const { setSearch, search, isFetching } = useVideos();
+	const { setPageOnURL } = useQueryStringPages();
+
+	const onSearchHandler = searchQuery => {
+		// clear the pagination, setting it back to page 1
+		setPageOnURL( 1 );
+		setSearch( searchQuery );
+	};
+
 	const [ searchQuery, setSearchQuery ] = useState( search );
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 
@@ -74,7 +84,7 @@ const VideoLibraryWrapper = ( {
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
 							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
-							onSearch={ setSearch }
+							onSearch={ onSearchHandler }
 							value={ searchQuery }
 							loading={ isFetching }
 							onChange={ setSearchQuery }
@@ -104,6 +114,7 @@ const VideoLibraryWrapper = ( {
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const history = useHistory();
+	const { search } = useVideos();
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(
 		LIBRARY_TYPE_LOCALSORAGE_KEY
@@ -127,6 +138,23 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 		history.push( `/video/${ video?.id }/edit` );
 	};
 
+	const library =
+		libraryType === LibraryType.Grid ? (
+			<VideoGrid
+				videos={ videos }
+				onVideoDetailsClick={ handleClickEditDetails }
+				loading={ loading }
+				count={ uploading ? videos.length : 6 }
+			/>
+		) : (
+			<VideoList
+				videos={ videos }
+				onVideoDetailsClick={ handleClickEditDetails }
+				hidePlays
+				loading={ loading }
+			/>
+		);
+
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
@@ -134,20 +162,23 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
 		>
-			{ libraryType === LibraryType.Grid ? (
-				<VideoGrid
-					videos={ videos }
-					onVideoDetailsClick={ handleClickEditDetails }
-					loading={ loading }
-					count={ uploading ? videos.length : 6 }
-				/>
+			{ videos.length > 0 || loading ? (
+				library
 			) : (
-				<VideoList
-					videos={ videos }
-					onVideoDetailsClick={ handleClickEditDetails }
-					hidePlays
-					loading={ loading }
-				/>
+				<Text>
+					{ search.trim()
+						? createInterpolateElement(
+								sprintf(
+									/* translators: placeholder is the search term */
+									__( 'No videos match your search for <em>%s</em>.', 'jetpack-videopress-pkg' ),
+									search
+								),
+								{
+									em: <em className={ styles[ 'query-no-results' ] } />,
+								}
+						  )
+						: __( 'No videos match your filtering criteria.', 'jetpack-videopress-pkg' ) }
+				</Text>
 			) }
 			<ConnectPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>

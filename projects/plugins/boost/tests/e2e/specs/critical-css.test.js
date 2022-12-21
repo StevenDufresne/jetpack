@@ -10,11 +10,7 @@ test.describe( 'Critical CSS module', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv( true )
-			.withConnection( true )
-			.withGotStarted()
-			.build();
+		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
 	} );
 
 	test.afterAll( async ( { browser } ) => {
@@ -82,7 +78,7 @@ test.describe( 'Critical CSS module', () => {
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectThemes();
 		const themesPage = await ThemesPage.init( page );
-		await themesPage.activateTheme( 'twentytwenty' );
+		await themesPage.activateTheme( 'twentytwentytwo' );
 		expect(
 			await themesPage.isElementVisible( 'text=Jetpack Boost - Action Required' )
 		).toBeTruthy();

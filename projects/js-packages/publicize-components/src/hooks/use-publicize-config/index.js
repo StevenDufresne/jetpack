@@ -88,6 +88,8 @@ export default function usePublicizeConfig() {
 		isShareLimitEnabled,
 		numberOfSharesRemaining: sharesData.shares_remaining,
 		hasPaidPlan: !! getJetpackData()?.social?.hasPaidPlan,
+		isEnhancedPublishingEnabled: !! getJetpackData()?.social?.isEnhancedPublishingEnabled,
 		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
+		adminUrl: getJetpackData()?.social?.adminUrl,
 	};
 }

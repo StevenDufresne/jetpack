@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
 /**
  * Test class for Grunion_Contact_Form
@@ -13,6 +13,9 @@ require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
  * @covers Grunion_Contact_Form
  */
 class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
+
+	private $post;
+	private $plugin;
 
 	/**
 	 * Sets up the test environment before the class tests begin.
@@ -340,10 +343,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$submission = $feedback[0];
 		$email      = get_post_meta( $submission->ID, '_feedback_email', true );
 
-		$expected  = '<b>Name:</b> John Doe<br /><br />';
-		$expected .= '<b>Dropdown:</b> First option<br /><br />';
-		$expected .= '<b>Radio:</b> Second option<br /><br />';
-		$expected .= '<b>Text:</b> Texty text<br /><br />';
+		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
+		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
+		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
+		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
 
 		$email_body = explode( PHP_EOL . PHP_EOL, $email['message'] );
 
@@ -393,10 +396,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertContains( 'john <john@example.com>', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
-		$expected  = '<b>Name:</b> John Doe<br /><br />';
-		$expected .= '<b>Dropdown:</b> First option<br /><br />';
-		$expected .= '<b>Radio:</b> Second option<br /><br />';
-		$expected .= '<b>Text:</b> Texty text<br /><br />';
+		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
+		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
+		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
+		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
 
 		// Divides email by the first empty line.
 		$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] );
@@ -736,7 +739,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'id'          => 'funID',
 		);
 
-		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'url' ) );
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
 		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
 	}
 

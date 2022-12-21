@@ -9,6 +9,7 @@ import {
 	Container,
 	Col,
 	useBreakpointMatch,
+	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall, arrowLeft } from '@wordpress/icons';
@@ -20,9 +21,10 @@ import { useHistory, Prompt } from 'react-router-dom';
  */
 import { Link } from 'react-router-dom';
 import { VideoPlayer } from '../../../components/video-frame-selector';
+import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
+import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
-import Logo from '../logo';
 import Placeholder from '../placeholder';
 import VideoDetails from '../video-details';
 import VideoThumbnail from '../video-thumbnail';
@@ -49,7 +51,7 @@ const Header = ( {
 	return (
 		<div className={ classnames( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
 			<button onClick={ () => history.push( '/' ) } className={ styles[ 'logo-button' ] }>
-				<Logo />
+				<JetpackVideoPressLogo />
 			</button>
 			<div className={ styles[ 'header-content' ] }>
 				<div className={ styles.breadcrumb }>
@@ -71,11 +73,12 @@ const Header = ( {
 };
 
 const GoBackLink = () => {
-	const history = useHistory();
+	const { page } = useVideosQuery();
+	const to = page > 1 ? `/?page=${ page }` : '/';
 
 	return (
 		<div className={ styles[ 'back-link' ] }>
-			<Link to="#" className={ styles.link } onClick={ () => history.push( '/' ) }>
+			<Link to={ to } className={ styles.link }>
 				<Icon icon={ arrowLeft } className={ styles.icon } />
 				{ __( 'Go back', 'jetpack-videopress-pkg' ) }
 			</Link>
@@ -88,16 +91,12 @@ const Infos = ( {
 	onChangeTitle,
 	description,
 	onChangeDescription,
-	caption,
-	onChangeCaption,
 	loading,
 }: {
 	title: string;
 	onChangeTitle: ( value: string ) => void;
 	description: string;
 	onChangeDescription: ( value: string ) => void;
-	caption: string;
-	onChangeCaption: ( value: string ) => void;
 	loading: boolean;
 } ) => {
 	return (
@@ -128,20 +127,6 @@ const Infos = ( {
 					size="large"
 				/>
 			) }
-			{ loading ? (
-				<Placeholder height={ 133 } className={ styles.input } />
-			) : (
-				<Input
-					value={ caption }
-					className={ styles.input }
-					label={ __( 'Caption', 'jetpack-videopress-pkg' ) }
-					name="caption"
-					onChange={ onChangeCaption }
-					onEnter={ noop }
-					type="textarea"
-					size="large"
-				/>
-			) }
 		</>
 	);
 };
@@ -156,9 +141,7 @@ const EditVideoDetails = () => {
 		url,
 		title,
 		description,
-		caption,
 		// Playback Token
-		playbackToken,
 		isFetchingPlaybackToken,
 		// Page State/Actions
 		hasChanges,
@@ -169,7 +152,6 @@ const EditVideoDetails = () => {
 		// Metadata
 		setTitle,
 		setDescription,
-		setCaption,
 		processing,
 		// Poster Image
 		useVideoAsThumbnail,
@@ -184,13 +166,15 @@ const EditVideoDetails = () => {
 		libraryAttachment,
 	} = useEditDetails();
 
+	const { canPerformAction } = usePermission();
+
 	const unsavedChangesMessage = __(
 		'There are unsaved changes. Are you sure you want to exit?',
 		'jetpack-videopress-pkg'
 	);
 
 	useUnloadPrevent( {
-		shouldPrevent: hasChanges && ! updated,
+		shouldPrevent: hasChanges && ! updated && canPerformAction,
 		message: unsavedChangesMessage,
 	} );
 
@@ -202,13 +186,14 @@ const EditVideoDetails = () => {
 		}
 	}, [ updated ] );
 
-	// We may need the playback token on the video URL as well
-	const videoUrl = playbackToken ? `${ url }?metadata_token=${ playbackToken }` : url;
+	if ( ! canPerformAction ) {
+		history.push( '/' );
+	}
 
 	let thumbnail: string | JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
-		thumbnail = <VideoPlayer src={ videoUrl } currentTime={ selectedTime } />;
+		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
 	} else if ( posterImageSource === 'upload' ) {
 		thumbnail = libraryAttachment.url;
 	}
@@ -222,7 +207,7 @@ const EditVideoDetails = () => {
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }
-					url={ videoUrl }
+					url={ url }
 					handleVideoFrameSelected={ handleVideoFrameSelected }
 					selectedTime={ selectedTime }
 					handleConfirmFrame={ handleConfirmFrame }
@@ -250,8 +235,6 @@ const EditVideoDetails = () => {
 								onChangeTitle={ setTitle }
 								description={ description ?? '' }
 								onChangeDescription={ setDescription }
-								caption={ caption ?? '' }
-								onChangeCaption={ setCaption }
 								loading={ isFetchingData }
 							/>
 						</Col>

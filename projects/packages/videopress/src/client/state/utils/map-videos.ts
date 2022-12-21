@@ -22,7 +22,9 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		caption,
 		rating,
 		allow_download: allowDownload,
+		display_embed: displayEmbed,
 		privacy_setting: privacySetting,
+		needs_playback_token: needsPlaybackToken,
 	} = jetpackVideoPress;
 
 	const {
@@ -60,8 +62,10 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		isPrivate,
 		posterImage: poster,
 		allowDownload,
+		displayEmbed,
 		rating,
 		privacySetting,
+		needsPlaybackToken,
 		poster: {
 			src: poster,
 			width,

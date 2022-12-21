@@ -34,12 +34,18 @@ declare global {
 		showScorePromptNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		dismissedScorePrompts: string[];
+		superCache: {
+			pluginActive: boolean;
+			cacheEnabled: boolean;
+			disableCacheKey?: string;
+		};
 		site: {
 			domain: string;
 			url: string;
 			online: boolean;
 			assetPath: string;
 			getStarted: boolean;
+			canResizeImages: boolean;
 		};
 		optimizations: Optimizations;
 		shownAdminNoticeIds: string[];

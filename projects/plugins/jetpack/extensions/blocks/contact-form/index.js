@@ -23,7 +23,10 @@ const icon = renderMaterialIcon(
 
 export const settings = {
 	title: __( 'Form', 'jetpack' ),
-	description: __( 'A simple way to get feedback from folks visiting your site.', 'jetpack' ),
+	description: __(
+		'Create forms to collect data from site visitors and manage their responses.',
+		'jetpack'
+	),
 	icon,
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
@@ -40,6 +43,7 @@ export const settings = {
 			padding: true,
 			margin: true,
 		},
+		align: [ 'wide', 'full' ],
 	},
 	attributes: defaultAttributes,
 	edit,
@@ -52,7 +56,7 @@ export const settings = {
 		);
 	},
 	variations,
-	category: 'grow',
+	category: 'contact-form',
 	transforms,
 	deprecated,
 };

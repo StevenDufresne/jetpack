@@ -7,6 +7,7 @@ import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
 import classnames from 'classnames';
+import { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -28,7 +29,9 @@ export const VideoThumbnailDropdownButtons = ( {
 } ) => {
 	return (
 		<>
+			{ /* TODO: Implement use default and remove disabled class */ }
 			<Button
+				className={ styles.disabled }
 				weight="regular"
 				fullWidth
 				variant="tertiary"
@@ -78,13 +81,12 @@ export const VideoThumbnailDropdown = ( {
 		<div className={ styles[ 'video-thumbnail-edit' ] }>
 			<Dropdown
 				position="bottom left"
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						variant="secondary"
 						className={ styles[ 'thumbnail__edit-button' ] }
 						icon={ edit }
-						onClick={ onUploadImage }
+						onClick={ onToggle }
 						aria-expanded={ isOpen }
 					/>
 				) }
@@ -150,73 +152,81 @@ const ProcessingThumbnail = ( { isRow = false }: { isRow?: boolean } ) => (
  * @param {VideoThumbnailProps} props - Component props.
  * @returns {React.ReactNode} - VideoThumbnail react component.
  */
-const VideoThumbnail = ( {
-	className,
-	thumbnail: defaultThumbnail,
-	duration,
-	editable,
-	blankIconSize = 96,
-	loading = false,
-	uploading = false,
-	processing = false,
-	onUseDefaultThumbnail,
-	onSelectFromVideo,
-	onUploadImage,
-	uploadProgress,
-	isRow = false,
-}: VideoThumbnailProps ) => {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
+	(
+		{
+			className,
+			thumbnail: defaultThumbnail,
+			duration,
+			editable,
+			blankIconSize = 96,
+			loading = false,
+			uploading = false,
+			processing = false,
+			onUseDefaultThumbnail,
+			onSelectFromVideo,
+			onUploadImage,
+			uploadProgress,
+			isRow = false,
+		},
+		ref
+	) => {
+		const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	// Mapping thumbnail (Ordered by priority)
-	let thumbnail = defaultThumbnail;
-	thumbnail = loading ? <Placeholder /> : thumbnail;
-	thumbnail = uploading ? (
-		<UploadingThumbnail isRow={ isRow } uploadProgress={ uploadProgress } />
-	) : (
-		thumbnail
-	);
-	thumbnail = processing ? <ProcessingThumbnail isRow={ isRow } /> : thumbnail;
-
-	thumbnail =
-		typeof thumbnail === 'string' && thumbnail !== '' ? (
-			<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
+		// Mapping thumbnail (Ordered by priority)
+		let thumbnail = defaultThumbnail;
+		thumbnail = loading ? <Placeholder /> : thumbnail;
+		thumbnail = uploading ? (
+			<UploadingThumbnail isRow={ isRow } uploadProgress={ uploadProgress } />
 		) : (
 			thumbnail
 		);
+		thumbnail = processing ? <ProcessingThumbnail isRow={ isRow } /> : thumbnail;
 
-	/** If the thumbnail is not set, use the placeholder with an icon */
-	thumbnail = thumbnail ? (
-		thumbnail
-	) : (
-		<div className={ styles[ 'thumbnail-blank' ] }>
-			<Icon icon={ video } size={ blankIconSize } />
-		</div>
-	);
+		thumbnail =
+			typeof thumbnail === 'string' && thumbnail !== '' ? (
+				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
+			) : (
+				thumbnail
+			);
 
-	return (
-		<div
-			className={ classnames( className, styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }
-		>
-			{ Boolean( thumbnail ) && editable && (
-				<VideoThumbnailDropdown
-					onUseDefaultThumbnail={ onUseDefaultThumbnail }
-					onSelectFromVideo={ onSelectFromVideo }
-					onUploadImage={ onUploadImage }
-				/>
-			) }
-			{ Number.isFinite( duration ) && (
-				<div className={ styles[ 'video-thumbnail-duration' ] }>
-					<Text variant="body-small" component="div">
-						{ duration >= 3600 * 1000
-							? gmdateI18n( 'H:i:s', new Date( duration ) )
-							: gmdateI18n( 'i:s', new Date( duration ) ) }
-					</Text>
-				</div>
-			) }
+		/** If the thumbnail is not set, use the placeholder with an icon */
+		thumbnail = thumbnail ? (
+			thumbnail
+		) : (
+			<div className={ styles[ 'thumbnail-blank' ] }>
+				<Icon icon={ video } size={ blankIconSize } />
+			</div>
+		);
 
-			<div className={ styles[ 'thumbnail-placeholder' ] }>{ thumbnail }</div>
-		</div>
-	);
-};
+		return (
+			<div
+				className={ classnames( className, styles.thumbnail, {
+					[ styles[ 'is-small' ] ]: isSmall,
+				} ) }
+				ref={ ref }
+			>
+				{ Boolean( thumbnail ) && editable && (
+					<VideoThumbnailDropdown
+						onUseDefaultThumbnail={ onUseDefaultThumbnail }
+						onSelectFromVideo={ onSelectFromVideo }
+						onUploadImage={ onUploadImage }
+					/>
+				) }
+				{ Number.isFinite( duration ) && (
+					<div className={ styles[ 'video-thumbnail-duration' ] }>
+						<Text variant="body-small" component="div">
+							{ duration >= 3600 * 1000
+								? gmdateI18n( 'H:i:s', new Date( duration ) )
+								: gmdateI18n( 'i:s', new Date( duration ) ) }
+						</Text>
+					</div>
+				) }
+
+				<div className={ styles[ 'thumbnail-placeholder' ] }>{ thumbnail }</div>
+			</div>
+		);
+	}
+);
 
 export default VideoThumbnail;

@@ -160,7 +160,7 @@ export function getQuestions( type ) {
 		{
 			type: 'checkbox',
 			name: 'buildScripts',
-			message: 'Does your project require build steps?',
+			message: 'Select production and/or development build steps to generate:',
 			choices: [
 				{
 					name: 'Production Build Step',
@@ -177,13 +177,13 @@ export function getQuestions( type ) {
 		{
 			type: 'confirm',
 			name: 'wordbless',
-			message: 'Will you need WorDBless for integration testing?',
+			message: 'Do you plan to use WordPress core functions in your PHPUnit tests?',
 			default: false,
 		},
 		{
 			type: 'confirm',
 			name: 'mirrorrepo',
-			message: 'Will this project require a mirror repo?',
+			message: 'Does this project need to be deployed publicly? (Create a mirror repo?)',
 		},
 	];
 	const packageQuestions = [];
@@ -511,12 +511,6 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
 			composerJson.extra.textdomain = name;
 			composerJson.type = 'jetpack-library';
-			composerJson[ 'require-dev' ][ 'automattic/jetpack-changelogger' ] =
-				'^' +
-				composerJson[ 'require-dev' ][ 'automattic/jetpack-changelogger' ].replace(
-					/\.x-dev$/,
-					''
-				);
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};

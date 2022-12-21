@@ -2,6 +2,56 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.26.4 - 2022-12-19
+### Added
+- Add Jetpack VaultPress Backup Logo [#27802]
+- Add Jetpack VideoPress logo [#27807]
+
+### Changed
+- Update Backup, Anti-spam, and VideoPress logos [#27847]
+- Updated package dependencies. [#27916]
+
+## 0.26.3 - 2022-12-12
+### Changed
+- Updated package dependencies. [#27888]
+
+## 0.26.2 - 2022-12-12
+### Added
+- RNA: Add props to ActionPopover related to link on action button [#27714]
+
+## 0.26.1 - 2022-12-02
+### Changed
+- Updated package dependencies. [#27699]
+
+## 0.26.0 - 2022-11-30
+### Added
+- RNA: Add ActionPopover component [#27656]
+
+## 0.25.2 - 2022-11-28
+### Changed
+- Updated package dependencies. [#27576]
+
+## 0.25.1 - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## 0.25.0 - 2022-11-17
+### Added
+- Added additional color studio colors to the ThemeProvider component for use in Jetpack Protect. [#26069]
+- Added a new component for Admin Notices [#26736]
+
+### Fixed
+- Added support for falsey non-zero values for offPrice [#27456]
+- RNA: Add aria-disabled property to Button when disabled [#27449]
+
+## 0.24.5 - 2022-11-10
+### Changed
+- Updated package dependencies. [#27319]
+
+## 0.24.4 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
 ## 0.24.3 - 2022-11-01
 ### Changed
 - Updated package dependencies.
